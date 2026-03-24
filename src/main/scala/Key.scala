@@ -1,8 +1,15 @@
 package com.nicheapplab.t_codeengine
-sealed abstract class Key {
+trait Key {
   def getQwerty: Option[Char]
 }
+/** Factory for internal Key class instance. */
 object Key {
+
+  /** Create a Key from ASCII that is typed with Qwerty keyboard
+    *
+    *  @param c ASCII char
+    *  @return an Option wrapped Key class instance
+    */
   def fromQwerty(c: Char): Option[Key] = {
     (LKey.fromQwerty(c), RKey.fromQwerty(c)) match {
       case (Some(k), None) => Some(k)
@@ -10,6 +17,12 @@ object Key {
       case _               => None
     }
   }
+
+  /** Create a Key from ASCII that is typed with Dvorak keyboard
+    *
+    * @param c ASCII char
+    * @return an Option wrapped Key class instance
+    */
   def fromDvorak(c: Char): Option[Key] = {
     (LKey.fromDvorak(c), RKey.fromDvorak(c)) match {
       case (Some(k), None) => Some(k)

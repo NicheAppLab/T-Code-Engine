@@ -2,6 +2,8 @@
 // https://scalameta.org/munit/docs/getting-started.html
 package com.nicheapplab.t_codeengine
 
+import com.nicheapplab.t_codeengine.Engine.convertQwerty
+
 class EELLLTXT extends munit.FunSuite {
 
   case class LessonData(name: String, expected: Array[String], strokes: Array[String])
@@ -175,7 +177,7 @@ class EELLLTXT extends munit.FunSuite {
       assume(!lesson.strokes.contains("TODO"), s"T-Code strokes missing for ${lesson.name}")
 
       val result_array = lesson.strokes.map(str =>
-        str.sliding(2, 2).toList.map(Engine.project(_)).mkString
+        Engine.convertQwerty(str)
       )
       val comp = result_array.zip(lesson.expected)
       comp.foreach((a,b) => assertEquals(a,b))

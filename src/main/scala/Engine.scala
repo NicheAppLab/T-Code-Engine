@@ -1,11 +1,15 @@
 package com.nicheapplab.t_codeengine
-
-//  0, 1, 2, 3, 4
-//  5, 6, 7, 8, 9
-// 10,11,12,13,14
-// 15,16,17,18,19
+/** Generates Japanese characters from key cordinates or Qwerty key chars with T-Code
+  *
+  * The main class to use is [[com.nicheapplab.t_codeengine.Engine]], as so
+  * {{{
+  * scala> import com.nicheapplab.t_codeengine._
+  * scala> Engine.convertQwerty("hgjdkdhgjdhgjgjd;gjdkd;gjdja;g")
+  * val res0: String = "で、ので、では、を、のを、とを"
+  * }}}
+  */
 object Engine {
-  val project = Map(
+  private val project = Map(
     ",1" -> "借",
     ".1" -> "須",
     "p1" -> "象",
@@ -1363,10 +1367,40 @@ object Engine {
     "z/" -> "字",
     "//" -> "ズ"
   )
-  def get(keys: Array[Key]): String = {
+  private def head(keys: Array[Key]): String = {
     (keys(0).getQwerty, keys(1).getQwerty) match {
       case (Some(k1), Some(k2)) => project("" + k1 + k2)
       case _                    => ""
     }
+  }
+  private def head(options: Array[Option[Key]]): String = {
+    val keys = options.flatten
+    head(keys)
+  }
+
+  /** Converts input string typed with Qwerty keyboard to Japanese characters
+    *
+    * @param str: ASCII input, typed with Qwerty keyboard
+    * @return a Japanese string converted with T-Code method.
+    */
+  def convertQwerty(str: String): String = convert(str, Key.fromQwerty)
+
+  /** Converts input string typed with Qwerty keyboard to Japanese characters
+    *
+    * @param str: ASCII input, typed with Dvorak keyboard
+    * @return a Japanese string converted with T-Code method.
+    */
+  def convertDvorak(str: String): String = convert(str, Key.fromDvorak)
+
+  private def convert(str: String, from: Char => Option[Key]): String = {
+    val strokes:Array[Key] = str.map(from(_)).flatten.toArray
+    strokes.sliding(2, 2).map(
+      pair => {
+        (pair(0).getQwerty, pair(1).getQwerty) match {
+          case (Some(c1), Some(c2)) => project("" + c1 + c2).mkString
+          case _ => ""
+        }
+      }
+    ).mkString
   }
 }
