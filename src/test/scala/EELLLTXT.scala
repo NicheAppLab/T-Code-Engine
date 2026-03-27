@@ -1,8 +1,6 @@
 // For more information on writing tests, see
 // https://scalameta.org/munit/docs/getting-started.html
-package com.nicheapplab.t_codeengine
-
-import com.nicheapplab.t_codeengine.Engine.convertQwerty
+package io.github.nicheapplab.t_codeengine
 
 class EELLLTXT extends munit.FunSuite {
 
@@ -175,9 +173,10 @@ class EELLLTXT extends munit.FunSuite {
     test(lesson.name) {
       // Ignore tests where strokes haven't been implemented yet
       assume(!lesson.strokes.contains("TODO"), s"T-Code strokes missing for ${lesson.name}")
+      val engine = new Engine with QwertyLayout
 
       val result_array = lesson.strokes.map(str =>
-        Engine.convertQwerty(str)
+        engine.convert(str)
       )
       val comp = result_array.zip(lesson.expected)
       comp.foreach((a,b) => assertEquals(a,b))
