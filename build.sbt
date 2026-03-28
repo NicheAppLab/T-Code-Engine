@@ -5,7 +5,7 @@ lazy val root = project
   .settings(
     name := "T-Code-Engine",
 
-    version := "0.2.0",
+    version := "0.3.0-SNAPSHOT",
 
     organization := "io.github.nicheapplab",
 
@@ -49,9 +49,3 @@ ThisBuild / homepage := Some(url("https://github.com/NicheAppLab/T-Code-Engine")
 // Remove all additional repository other than Maven Central from POM
 ThisBuild / pomIncludeRepository := { _ => false }
 
-// new setting for the Central Portal
-ThisBuild / publishTo := {
-  val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
-  if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
-  else localStaging.value
-}
