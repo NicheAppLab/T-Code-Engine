@@ -30,3 +30,5 @@ class QwertyEngine: TCodeEngine(), QwertyLayout
 val engine = QwertyEngine()
 engin.convert("hgjdkdhgjdhgjgjd;gjdkd;gjdja;g")
 ```
+
+Alternatively, a predefined `DvorakLayout` can be specified.
