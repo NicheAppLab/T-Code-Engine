@@ -1,17 +1,12 @@
 package io.github.nicheapplab.t_codeengine
 
 import scala.io.Source
+import scala.util.Using
 
 object Combinator{
-  def findLine(a: Char, b: Char):Option[String] = {
-    val lines = Source.fromResource("bushu.rev").getLines()
-    try {
-      lines.find(line => line.contains(""+a+b) || line.contains(""+b+a))
-    } finally {
-      lines match{
-        case bufferedSource: Source => bufferedSource.close()
-        case _ =>
-      }
+  private def findLine(a: Char, b: Char):Option[String] = {
+    Using.resource(Source.fromResource("bushu.rev")){source =>
+      source.getLines().find(line => line.contains(""+a+b) || line.contains(""+b+a))
     }
   }
   def composite(a: Char, b: Char): Option[Char] = {

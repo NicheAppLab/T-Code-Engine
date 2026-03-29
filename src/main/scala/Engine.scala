@@ -29,7 +29,7 @@ class Engine {
     case (26, 23) :: tail => {
       val (res, nextTail) = resolveComposite(tail)
       // Add to accumulator only if the result is Some(char)
-      loop(nextTail, res.toList ++ acc)
+      loop(nextTail, acc ++ res.toList)
     }
     case (c1, c2) :: tail => {
       val res = Strokes.get(c1,c2)
@@ -56,5 +56,9 @@ class Engine {
       case (26, 23) :: tail => resolveComposite(tail)
       case (c1, c2) :: tail   => (Some(Strokes.get(c1,c2)), tail)
     }
+  }
+
+  def mixedConvert(str: String): Array[String] = {
+    MixedConverter.get(str)
   }
 }
