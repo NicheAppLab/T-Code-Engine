@@ -1,12 +1,14 @@
 package io.github.nicheapplab.t_codeengine
 
 import scala.io.Source
+import scala.util.Using
 /** Provides the map of Qwerty two-keys-stroke to Japanese character */
 object Strokes {
-  val dictionary: Array[Array[Char]] = Source.fromResource("tcode_tbl.txt")
-  .getLines()
-  .map(_.toArray)
-  .toArray
+  private val dictionary: Array[Array[Char]] = Using.resource(Source.fromResource("tcode_tbl.txt")){ source =>
+    source.getLines()
+      .map(_.toArray)
+      .toArray
+  }
 
   def get(first: Int, second: Int):Char = dictionary(second)(first)
 }
