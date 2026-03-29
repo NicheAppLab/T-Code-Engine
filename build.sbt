@@ -21,13 +21,12 @@ ThisBuild / publishTo := {
   if (isSnapshot.value) Some("central-snapshots" at centralSnapshots)
   else localStaging.value
 }
-ThisBuild / organization := "io.github.nicheapplab"
 ThisBuild / organizationName := "Niche App Lab"
 ThisBuild / organizationHomepage := None
 
 ThisBuild / scmInfo := Some(
   ScmInfo(
-    url("https://github.com/your-account/your-project"),
+    url("https://github.com/NicheAppLab/T-Code-Engine"),
     "scm:git@github.com:your-account/your-project.git"
   )
 )
@@ -49,3 +48,4 @@ ThisBuild / homepage := Some(url("https://github.com/NicheAppLab/T-Code-Engine")
 // Remove all additional repository other than Maven Central from POM
 ThisBuild / pomIncludeRepository := { _ => false }
 
+ThisBuild / versionScheme := Some("early-semver")

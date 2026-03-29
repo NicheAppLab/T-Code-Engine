@@ -6,7 +6,7 @@ object Combinator{
   def findLine(a: Char, b: Char):Option[String] = {
     val lines = Source.fromResource("bushu.rev").getLines()
     try {
-      lines.find(line => line.contains(""+a+b))
+      lines.find(line => line.contains(""+a+b) || line.contains(""+b+a))
     } finally {
       lines match{
         case bufferedSource: Source => bufferedSource.close()
