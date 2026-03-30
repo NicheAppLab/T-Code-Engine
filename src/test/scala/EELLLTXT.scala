@@ -2,7 +2,7 @@
 // https://scalameta.org/munit/docs/getting-started.html
 package io.github.nicheapplab.t_codeengine
 
-class EELLLTXT extends munit.FunSuite {
+class EELLLTXT0 extends munit.FunSuite {
 
   case class LessonData(name: String, expected: Array[String], strokes: Array[String])
 
@@ -281,7 +281,7 @@ class EELLLTXT extends munit.FunSuite {
       )
     ),
     LessonData(
-      "15",
+      "16",
       Array(
         "012、210。",
         "10こ、2つ。",
@@ -300,8 +300,99 @@ class EELLLTXT extends munit.FunSuite {
         "oajw;bjdha;dudjtighdkglg;ahf",
         "jg;ajghapfudpfldpfhf;dldmgjghamghf"
       )
-    )
-  )
+    ),
+    LessonData(
+      "17",
+      Array(
+        "5678。7かけ8は56。",
+        "7月から8月までなつやすみ。",
+        "1868年7月7日",
+        "あるいて6、7分",
+        "99円にしないで、98円にする。",
+        "1982-1997年のあいだに9人に1人になる。"
+      ),
+      Array(
+        "ldifhekthfhejenfktjgldifhf",
+        "hepfjeigktpfmdhglg.dye,f/ghf",
+        ";dktifkt;thepfhekr",
+        "yf;ahdlaifjdhehw",
+        "kvkvkzkgjslghdhgjdkvktkzkg,f;ahf",
+        ";dkvkt;fkc;dkvkvhe;tkdyfhdhckgkvmakg;dmakglg;ahf"
+      )
+    ),
+    LessonData(
+      "18",
+      Array(
+        "03(812)2111-4093",
+        "113、7-3-1。920-09、4-8-605。",
+        "1月1日、1月15日、2月11日、3月23日。",
+        "4月29日、5月3日、5月5日、9月15日。",
+        "9月23日、10月10日、11月3日、11月23日。",
+        "645年、710年、794年、1192年。",
+        "1604年、1868年、1945年、1982年。"
+      ),
+      Array(
+        "kfhakekt;d;fid;f;d;d;dkcudkfkvha",
+        ";d;dhajdhekchakc;dhfkv;fkfkckfkvjdudkcktkcifkfldhf",
+        ";dpf;dkrjd;dpf;dldkrjd;fpf;d;dkrjdhapf;fhakrhf",
+        "udpf;fkvkrjdldpfhakrjdldpfldkrjdkvpf;dldkrhf",
+        "kvpf;fhakrjd;dkfpf;dkfkrjd;d;dpfhakrjd;d;dpf;fhakrhf",
+        "ifudld;tjdhe;dkf;tjdhekvud;tjd;d;dkv;f;thf",
+        ";difkfud;tjd;dktifkt;tjd;dkvudld;tjd;dkvkt;f;thf"
+      )
+    ),
+    LessonData(
+      "19",
+      Array(
+        "5時13分・6時18分・7時12分・8時9分、",
+        "9時34分・10時56分・11時29分・12時54分、",
+        "20時40分・21時25分・23時50分。",
+        "2、3日もたてば、てんきもよくなるだろう。",
+        "8時につくには、50分まえにはでていなければならない。",
+        "1986年はとら年です。",
+        "わたしも7月3日には24になります。"
+      ),
+      Array(
+        "ldmg;dhahwlfifmg;dkthwlfhemg;d;fhwlfktmgkvhwjd",
+        "kvmghaudhwlf;dkfmgldifhwlf;d;dmg;fkvhwlf;d;fmgldudhwjd",
+        ";fkfmgudkfhwlf;f;dmg;fldhwlf;fhamgldkfhwhf",
+        ";fjdhakriaksla,wjdlandhriajwjtlg;ahcpsydhf",
+        "ktmgkg.djtkgjgjdldkfhwmdltkgjghglahdlgnf;e,wlgiglghdhf",
+        ";dkvktif;tjgjaig;thg,fhf",
+        "ysksjsiahepfhakrkgjg;fudkglgjcmd,fhf"
+      )
+    ),
+    LessonData(
+      "20",
+      Array(
+        "アレー、ルール、レール、",
+        "レアー、ルアー、アール、",
+        "レールのアレー、",
+        "ルールではルアーをつかう。",
+        "アート・ルート・レート、アルト、",
+        "アース・レース・トースト、",
+        "アート・ストアのストール",
+        "ストのストレスをストレートに",
+        "アトラス、トレーラー・ラリー、シー・スルー、",
+        "リアルなスリラー、シールとレシート、",
+        "リトル・ストリート、",
+        "スリラー・ストーリーのシリアスなラスト。"
+      ),
+      Array(
+        ";w;qhsjdkwhskwjd;qhskwjd",
+        ";q;whsjdkw;whsjd;whskwjd",
+        ";qhskwkd;w;qhsjd",
+        "kwhskwhgjgkw;whs;g.djeydhf",
+        ";whslelfkwhslelf;qhslejd;wkwlejd",
+        ";whsualf;qhsualflehsualejd",
+        ";whslelfuale;wkdualehskw",
+        "ualekduale;qua;guale;qhslekg",
+        ";wleusuajdle;qhsushslfuspdhsjdpghslfuakwhsjd",
+        "pd;wkwlguapdushsjdpghskwja;qpghslejd",
+        "pdlekwlfualepdhslejd",
+        "uapdushslfualehspdhskdpgpd;wualgusualehf"
+      )
+    )  )
 
   // Dynamically generate MUnit tests for every lesson
   lessons.foreach { lesson =>
