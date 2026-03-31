@@ -1,6 +1,6 @@
 // For more information on writing tests, see
 // https://scalameta.org/munit/docs/getting-started.html
-package io.github.nicheapplab.t_codeengine
+package io.github.nicheapplab.t_code_engine
 
 class EELLLTXT0 extends munit.FunSuite {
 

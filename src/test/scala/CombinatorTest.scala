@@ -1,10 +1,11 @@
 // For more information on writing tests, see
 // https://scalameta.org/munit/docs/getting-started.html
-package io.github.nicheapplab.t_codeengine
+package io.github.nicheapplab.t_code_engine
 
 class CombinatorTest extends munit.FunSuite {
 
   val engine = new Engine with QwertyLayout
+
   // Dynamically generate MUnit tests for every lesson
   // Ignore tests where strokes haven't been implemented yet
   test("上"){
@@ -16,7 +17,7 @@ class CombinatorTest extends munit.FunSuite {
     assertEquals(engine.convert(stroke), "七")
   }
   test("虍"){
-    val left = Combinator.composite('上','七')
+    val left = engine.combi.composite('上','七')
     assertEquals(left, Some('虍'))
   }
   test("虍 in composite"){
@@ -26,7 +27,7 @@ class CombinatorTest extends munit.FunSuite {
 
 
   test("劇"){
-    val ans = Combinator.composite('虍', 'リ')
+    val ans = engine.combi.composite('虍', 'リ')
     assertEquals(ans, Some('劇'))
   }
   test("劇 in composite"){

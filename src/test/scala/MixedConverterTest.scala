@@ -1,15 +1,19 @@
 // For more information on writing tests, see
 // https://scalameta.org/munit/docs/getting-started.html
-package io.github.nicheapplab.t_codeengine
+package io.github.nicheapplab.t_code_engine
 
 class MixedConverterTest extends munit.FunSuite {
 
-  // Dynamically generate MUnit tests for every lesson
-  // Ignore tests where strokes haven't been implemented yet
+  val mixed = new MixedConverter with MixedConverterDictionary
+
   test("記しゃ"){
-    assertEquals(MixedConverter.get("記しゃ").contains("記者"), true)
+    assertEquals(mixed.convert("記しゃ").contains("記者"), true)
   }
   test("花だん"){
-    assertEquals(MixedConverter.get("花だん").contains("花壇"), true)
+    assertEquals(mixed.convert("花だん").contains("花壇"), true)
+  }
+  test("加える"){
+    val candidates = mixed.convert("くわえ","る")
+    assertEquals(candidates.toList, List("加える"))
   }
 }
