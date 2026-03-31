@@ -1,4 +1,4 @@
-package io.github.nicheapplab.t_codeengine
+package io.github.nicheapplab.t_code_engine
 
 abstract trait Layout{
   def getStroke(c: Char): Option[Int]

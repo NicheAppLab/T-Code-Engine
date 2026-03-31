@@ -1,4 +1,4 @@
-package io.github.nicheapplab.t_codeengine
+package io.github.nicheapplab.t_code_engine
 
 import scala.io.Source
 import scala.util.Using
