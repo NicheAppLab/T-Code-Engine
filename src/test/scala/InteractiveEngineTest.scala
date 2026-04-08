@@ -51,4 +51,23 @@ class InteractiveEngineTest extends munit.FunSuite {
     val res = ie.commit()
     assert( clue(res) == clue("相次ぐ火事により") )
   }
+  test("劇"){
+    "jfjfibhtpd".foreach{ c=>
+      ie.put(c)
+      println(s"Out: ${ie.outputBuffer}, Buff: ${ie.buffer}, Last: ${ie.lastChar}")
+    }
+    val res = ie.commit()
+    assert( clue(res) == clue("劇") )
+  }
+  test("Deleting"){
+    "jfjf".foreach{ c=>
+      ie.put(c)
+    }
+    ie.backspace()
+    "pw.v".foreach(ie.put(_))
+    assert( clue(ie.outputBuffer.mkString) == clue("相"))
+    assert( clue(ie.buffer).size == 0 )
+    val res = ie.commit()
+    assert( clue(res) == clue("相") )
+  }
 }
