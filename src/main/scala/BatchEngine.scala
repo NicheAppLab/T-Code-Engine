@@ -1,16 +1,19 @@
-package io.github.nicheapplab.t_code_engine
-/** Generates Japanese characters from key cordinates or Qwerty key chars with T-Code
+package io.github.nicheapplab.tcodeengine
+/** Generates Japanese characters from key strokes defined by T-Code
   *
-  * The main class to use is [[io.github.nicheapplab.t_code_engine.Engine]], as so
+  * BatchEngine provides batched conversion into Japanese. Prefix key strokes
+  * should be handled outside of the library. The other engine,
+  * [[io.github.nicheapplab.tcodeengine.InteractiveEngine]] will handle prefix
+  * key strokes and inflex specification.
   * {{{
-  * scala> import com.nicheapplab.t_code_engine._
-  * scala> val engine = new Engine with QwertyLayout
+  * scala> import io.github.nicheapplab.tcodeengine._
+  * scala> val engine = new BatchEngine with QwertyLayout
   * scala> engine.convert("hgjdkdhgjdhgjgjd;gjdkd;gjdja;g")
   * val res0: String = "で、ので、では、を、のを、とを"
   * }}}
   * Alternatively, a predefined [[DvorakLayout]] can be specified.
   */
-class Engine {
+class BatchEngine {
   this: Layout =>
 
   val mixed = new MixedConverter with MixedConverterDictionary

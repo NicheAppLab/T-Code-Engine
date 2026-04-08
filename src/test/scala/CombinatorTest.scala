@@ -1,10 +1,10 @@
 // For more information on writing tests, see
 // https://scalameta.org/munit/docs/getting-started.html
-package io.github.nicheapplab.t_code_engine
+package io.github.nicheapplab.tcodeengine
 
 class CombinatorTest extends munit.FunSuite {
 
-  val engine = new Engine with QwertyLayout
+  val engine = new BatchEngine with QwertyLayout
 
   // Dynamically generate MUnit tests for every lesson
   // Ignore tests where strokes haven't been implemented yet

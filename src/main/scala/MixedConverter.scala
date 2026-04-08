@@ -1,4 +1,4 @@
-package io.github.nicheapplab.t_code_engine
+package io.github.nicheapplab.tcodeengine
 
 import scala.io.Source
 import scala.collection.immutable.HashMap
