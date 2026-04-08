@@ -6,7 +6,7 @@ T-Code engine provides T-Code IME core functions.
 
 Add dependency to your project.
 ```
-libraryDependencies += "io.github.nicheapplab" %% "t-code-engine" % "0.4.0"
+libraryDependencies += "io.github.nicheapplab" %% "t-code-engine" % "0.4.3"
 ```
 For maven or gradle, you might need to use `t-code-engine_3` instead, due to Scala3 package naming policy.
 
