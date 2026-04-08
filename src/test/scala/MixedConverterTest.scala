@@ -1,6 +1,6 @@
 // For more information on writing tests, see
 // https://scalameta.org/munit/docs/getting-started.html
-package io.github.nicheapplab.t_code_engine
+package io.github.nicheapplab.tcodeengine
 
 class MixedConverterTest extends munit.FunSuite {
 

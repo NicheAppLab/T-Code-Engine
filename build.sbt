@@ -3,9 +3,9 @@ val scala3Version = "3.8.2"
 lazy val root = project
   .in(file("."))
   .settings(
-    name := "T-Code-Engine",
+    name := "tcodeengine",
 
-    version := "0.3.1-SNAPSHOT",
+    version := "0.4.0",
 
     organization := "io.github.nicheapplab",
 
@@ -43,7 +43,7 @@ ThisBuild / description := "Generate Japanese characters based on T-Code input m
 ThisBuild / licenses := List(
   "GPL2" -> new URL("https://www.gnu.org/licenses/old-licenses/gpl-2.0.html")
 )
-ThisBuild / homepage := Some(url("https://github.com/NicheAppLab/T-Code-Engine"))
+ThisBuild / homepage := Some(url("https://NicheAppLab.github.io/"))
 
 // Remove all additional repository other than Maven Central from POM
 ThisBuild / pomIncludeRepository := { _ => false }

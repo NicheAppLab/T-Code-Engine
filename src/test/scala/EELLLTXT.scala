@@ -1,6 +1,6 @@
 // For more information on writing tests, see
 // https://scalameta.org/munit/docs/getting-started.html
-package io.github.nicheapplab.t_code_engine
+package io.github.nicheapplab.tcodeengine
 
 class EELLLTXT0 extends munit.FunSuite {
 
@@ -399,7 +399,7 @@ class EELLLTXT0 extends munit.FunSuite {
     test(lesson.name) {
       // Ignore tests where strokes haven't been implemented yet
       assume(!lesson.strokes.contains("TODO"), s"T-Code strokes missing for ${lesson.name}")
-      val engine = new Engine with QwertyLayout
+      val engine = new BatchEngine with QwertyLayout
 
       val result_array = lesson.strokes.map(str =>
         engine.convert(str)
