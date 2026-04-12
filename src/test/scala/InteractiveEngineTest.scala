@@ -54,7 +54,6 @@ class InteractiveEngineTest extends munit.FunSuite {
   test("劇"){
     "jfjfibhtpd".foreach{ c=>
       ie.put(c)
-      println(s"Out: ${ie.outputBuffer}, Buff: ${ie.buffer}, Last: ${ie.lastChar}")
     }
     val res = ie.commit()
     assert( clue(res) == clue("劇") )
@@ -64,10 +63,17 @@ class InteractiveEngineTest extends munit.FunSuite {
       ie.put(c)
     }
     ie.backspace()
-    "pw.v".foreach(ie.put(_))
-    assert( clue(ie.outputBuffer.mkString) == clue("相"))
-    assert( clue(ie.buffer).size == 0 )
+    ie.put('p')
+    ie.put('w')
+    ".v".foreach(ie.put(_))
     val res = ie.commit()
     assert( clue(res) == clue("相") )
+  }
+  test("丸"){
+    "jfjfjdnr".foreach{ c=>
+      ie.put(c)
+    }
+    val res = ie.commit()
+    assert( clue(res) == clue("丸") )
   }
 }

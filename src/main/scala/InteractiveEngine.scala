@@ -65,9 +65,11 @@ class InteractiveEngine { this: Layout =>
   def buffer = _buffer
   def candidates = _candidates
   def lastChar = _lastChar
+  def lastCharAsKey = lastChar.flatMap(getKey(_))
 
-  def put(c: Char): Unit = {
-    (mixedMode, compositionLevel, lastChar, this.getStroke(c)) match {
+  def put(c: Char): Unit = if(candidates.isEmpty) _put(c)
+  private def _put(c: Char): Unit = {
+    (mixedMode, compositionLevel, _lastChar, this.getStroke(c)) match {
       case (_, _, _, None)   => {}
       case (_, _, None, oc2) => { _lastChar = oc2 }
       case (_, _, Some(26), Some(23)) => {
@@ -95,11 +97,21 @@ class InteractiveEngine { this: Layout =>
       case (_, lv, Some(c1), Some(c2)) if lv > 0 => {
         if (buffer.size == 0) {} else if (buffer.last == '▲') {
           _lastChar = None
-          buffer += Strokes.get(c1, c2)
+          val c = Strokes.get(c1, c2)
+          combi.composite(c, ' ') match{
+            case Some(res) => {
+              buffer.dropRightInPlace(1)
+              buffer.append(res)
+              compositionLevel -= 1
+            }
+            case None => {
+              buffer.append(c)
+            }
+          }
         } else {
-          _lastChar = None
           val char1 = buffer.last
-          val char2 = Strokes.get(c1, c2)
+          _lastChar = None
+          var char2 = Strokes.get(c1, c2)
           combi.composite(char1, char2) match {
             case None => {
               buffer.dropRightInPlace(1)
@@ -162,7 +174,8 @@ class InteractiveEngine { this: Layout =>
       buffer.insert(n + 1, '|')
   }
 
-  def reset() = {
+  def reset() = if (candidates.isEmpty) _reset()
+  private def _reset() = {
     outputBuffer.clear()
     buffer.clear()
     candidates.clear()
@@ -170,7 +183,8 @@ class InteractiveEngine { this: Layout =>
     inflexPos = None
     _lastChar = None
   }
-  def convert() = {
+  def convert() = if (candidates.isEmpty) _convert()
+  private def _convert() = {
     buffer.remove(buffer.indexOf('△'))
     inflexPos match {
       case None =>
@@ -194,7 +208,8 @@ class InteractiveEngine { this: Layout =>
     mixedMode = false
   }
   def selectCandidate(n: Int) = {
-    outputBuffer ++= candidates(n)
+    if(!candidates.isEmpty)
+      outputBuffer ++= candidates(n)
     candidates.clear()
   }
 
@@ -204,7 +219,12 @@ class InteractiveEngine { this: Layout =>
     res.mkString
   }
 
-  def backspace(): Boolean = {
+  def backspace(): Boolean = if (candidates.isEmpty){
+    _backspace()
+  } else {
+    true
+  }
+  private def _backspace(): Boolean = {
     (lastChar, buffer.isEmpty, outputBuffer.isEmpty) match{
       case (Some(_), _, _) =>
         _lastChar = None
@@ -217,10 +237,10 @@ class InteractiveEngine { this: Layout =>
         } else if(buffer.last == '△') {
           mixedMode = false
         }
-        buffer.dropRightInPlace(1)
+        _buffer.dropRightInPlace(1)
         return true
       case (None, true, false) =>
-        outputBuffer.dropRightInPlace(1)
+        _outputBuffer.dropRightInPlace(1)
         return true
     }
   }
