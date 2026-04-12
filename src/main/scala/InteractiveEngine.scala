@@ -103,6 +103,10 @@ class InteractiveEngine { this: Layout =>
               buffer.dropRightInPlace(1)
               buffer.append(res)
               compositionLevel -= 1
+              if(mixedMode == false && compositionLevel == 0){
+                outputBuffer ++= buffer
+                buffer.clear()
+              }
             }
             case None => {
               buffer.append(c)
@@ -146,32 +150,30 @@ class InteractiveEngine { this: Layout =>
   }
 
   def inflexLeft() = inflexPos match {
-    case None if buffer.size == 0 =>
-      inflexPos = Some(1)
-      buffer.insert(0, '|')
+    case None if buffer.size == 0 => {}
     case None =>
       inflexPos = Some(buffer.length - 1)
       buffer.insert(buffer.length - 1, '|')
-    case Some(n) if n <= 1 =>
-      inflexPos = Some(1)
     case Some(n) =>
-      buffer.remove(n)
-      inflexPos = Some(n - 1)
-      buffer.insert(n - 1, '|')
+      if (n == 0) {
+      } else {
+        buffer.remove(n)
+        inflexPos = Some(n - 1)
+        buffer.insert(n - 1, '|')
+      }
   }
   def inflexRight() = inflexPos match {
-    case None if buffer.size != 0 =>
-      inflexPos = Some(buffer.size)
-      buffer.insert(buffer.size, '|')
+    case None if buffer.size == 0 => {}
     case None =>
       inflexPos = Some(buffer.size)
       buffer.insert(buffer.size, '|')
-    case Some(n) if buffer.length <= n =>
-      inflexPos = Some(buffer.length)
     case Some(n) =>
-      buffer.remove(n)
-      inflexPos = Some(n + 1)
-      buffer.insert(n + 1, '|')
+      if (n == buffer.size - 1){
+      } else {
+        buffer.remove(n)
+        inflexPos = Some(n + 1)
+        buffer.insert(n + 1, '|')
+      }
   }
 
   def reset() = if (candidates.isEmpty) _reset()
@@ -236,6 +238,8 @@ class InteractiveEngine { this: Layout =>
           compositionLevel -= 1
         } else if(buffer.last == '△') {
           mixedMode = false
+        } else if(buffer.last == '|'){
+          inflexPos = None
         }
         _buffer.dropRightInPlace(1)
         return true
