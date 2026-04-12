@@ -34,5 +34,15 @@ class CombinatorTest extends munit.FunSuite {
     val ans = engine.convert("jfjfibhtpd")
     assertEquals(ans, "劇")
   }
+  test("劇丶 in composite"){
+    val ans = engine.convert("jfjfibhtpdjfjd")
+    assertEquals(ans, "劇丶")
+  }
+  test("丶劇 in composite"){
+    val ans = engine.convert("jfjdjfjfibhtpd")
+    assertEquals(ans, "丶劇")
+  }
+
+
 
 }

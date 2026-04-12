@@ -2,6 +2,7 @@ package io.github.nicheapplab.tcodeengine
 
 abstract trait Layout{
   def getStroke(c: Char): Option[Int]
+  def getKey(i: Int): Option[Char]
 }
 
 /** Provides validation of Qwerty keys stroke for T-Code */
@@ -18,6 +19,11 @@ trait QwertyLayout extends Layout{
     } else {
       None
     }
+  }
+  def getKey(i: Int): Option[Char] = {
+    if (i<40){
+      Some(QwertyLayout.keyseq(i))
+    } else None
   }
 }
 /** Defines the keyboard layout of QwertyLayout */
@@ -39,7 +45,12 @@ trait DvorakLayout extends Layout{
       } else {
         None
       }
-    }
+  }
+  def getKey(i: Int): Option[Char] = {
+    if (i<40) {
+      Some(DvorakLayout.keyseq(i))
+    } else None
+  }
 }
 /** Defines the keyboard layout of DvorakLayout */
 object DvorakLayout{

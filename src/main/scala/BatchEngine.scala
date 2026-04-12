@@ -25,9 +25,9 @@ class BatchEngine {
       .collect { case s if s.length == 2 => (s(0), s(1)) }
       .toList
 
-    compositeLoop(pairs, Nil).mkString
+    compositeLoop(pairs).mkString
   }
-  def compositeLoop(remaining: List[(Int, Int)], acc: List[Char]): List[Char] = combi.loop(remaining, acc)
+  def compositeLoop(remaining: List[(Int, Int)]): List[Char] = combi.loop(remaining, Nil)
   def mixedConvert(str: String): Array[String] = {
     mixed.convert(str)
   }
