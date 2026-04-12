@@ -5,7 +5,7 @@ lazy val root = project
   .settings(
     name := "tcodeengine",
 
-    version := "0.5.0",
+    version := "0.5.3-SNAPSHOT",
 
     organization := "io.github.nicheapplab",
 
