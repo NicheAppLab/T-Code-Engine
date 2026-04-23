@@ -59,6 +59,8 @@ class InteractiveEngine { this: Layout =>
   private var inflexPos: Option[Int] = None
   private var mixedMode = false
   private var compositionLevel = 0
+  private val KEY_F = 23
+  private val KEY_J = 26
   private var _lastChar: Option[Int] = None
 
   def outputBuffer = _outputBuffer
@@ -67,85 +69,91 @@ class InteractiveEngine { this: Layout =>
   def lastChar = _lastChar
   def lastCharAsKey = lastChar.flatMap(getKey(_))
 
-  def put(c: Char): Unit = if(candidates.isEmpty) _put(c)
+  def put(c: Char): Unit = if (candidates.isEmpty) _put(c)
+
   private def _put(c: Char): Unit = {
-    (mixedMode, compositionLevel, _lastChar, this.getStroke(c)) match {
-      case (_, _, _, None)   => {}
-      case (_, _, None, oc2) => { _lastChar = oc2 }
-      case (_, _, Some(26), Some(23)) => {
-        _lastChar = None
-        compositionLevel += 1
-        buffer += '▲'
-      }
-      case (false, 0, Some(23), Some(26)) => {
-        _lastChar = None
-        mixedMode = true
-        buffer += '△'
-      }
-      case (false, 0, Some(c1), Some(c2)) => {
-        _lastChar = None
-        outputBuffer += Strokes.get(c1, c2)
-      }
-      case (true, 0, Some(23), Some(26)) => {
-        _lastChar = None
-      }
-      case (true, 0, Some(c1), Some(c2)) => {
-        _lastChar = None
-        buffer += Strokes.get(c1, c2)
-      }
-      case (true, _, Some(23), Some(26)) => { _lastChar = None }
-      case (_, lv, Some(c1), Some(c2)) if lv > 0 => {
-        if (buffer.size == 0) {} else if (buffer.last == '▲') {
-          _lastChar = None
-          val c = Strokes.get(c1, c2)
-          combi.composite(c, ' ') match{
-            case Some(res) => {
-              buffer.dropRightInPlace(1)
-              buffer.append(res)
-              compositionLevel -= 1
-              if(mixedMode == false && compositionLevel == 0){
-                outputBuffer ++= buffer
-                buffer.clear()
-              }
-            }
-            case None => {
-              buffer.append(c)
-            }
-          }
-        } else {
-          val char1 = buffer.last
-          _lastChar = None
-          var char2 = Strokes.get(c1, c2)
-          combi.composite(char1, char2) match {
-            case None => {
-              buffer.dropRightInPlace(1)
-            }
-            case Some(res) => {
-              buffer.dropRightInPlace(1)
-              compositionLevel -= 1
-              if(compositionLevel > 0 && buffer.last != '▲'){
-                val part1 = buffer.last
-                combi.composite(part1, res) match {
-                  case None => {}
-                  case Some(res2) => {
-                    compositionLevel -= 1
-                    outputBuffer += res2
-                    buffer.dropRightInPlace(2)
-                  }
-                }
-              }
-              val pos = buffer.lastIndexOf('▲')
-              buffer.remove(pos)
-              buffer.append(res)
-              if (mixedMode == false && compositionLevel == 0) {
-                outputBuffer ++= buffer
-                buffer.clear()
-              }
-            }
-          }
+    this.getStroke(c) match {
+      case None => // Ignore invalid keys
+      case Some(current) =>
+        _lastChar match {
+          case None =>
+            _lastChar = Some(current)
+          case Some(last) =>
+            _lastChar = None
+            processStroke(last, current)
         }
+    }
+  }
+
+  private def processStroke(c1: Int, c2: Int): Unit = {
+    if (c1 == KEY_J && c2 == KEY_F) {
+      enterCompositionMode()
+    } else if (c1 == KEY_F && c2 == KEY_J && !mixedMode && compositionLevel == 0) {
+      enterMixedMode()
+    } else if (c1 == KEY_F && c2 == KEY_J && mixedMode) {
+      // Ignore "fj" (Mixed mode prefix) if already in mixed mode
+    } else if (compositionLevel > 0) {
+      handleCompositionInput(c1, c2)
+    } else if (mixedMode) {
+      buffer += Strokes.get(c1, c2)
+    } else {
+      outputBuffer += Strokes.get(c1, c2)
+    }
+  }
+
+  private def enterCompositionMode(): Unit = {
+    compositionLevel += 1
+    buffer += '▲'
+  }
+
+  private def enterMixedMode(): Unit = {
+    mixedMode = true
+    buffer += '△'
+  }
+
+  private def handleCompositionInput(c1: Int, c2: Int): Unit = {
+    val char2 = Strokes.get(c1, c2)
+    if (buffer.nonEmpty && buffer.last == '▲') {
+      combi.composite(char2, ' ') match {
+        case Some(res) =>
+          buffer.dropRightInPlace(1)
+          buffer.append(res)
+          compositionLevel -= 1
+        case None =>
+          buffer.append(char2)
       }
-      case (_, _, Some(_), Some(_)) => {}
+    } else if (buffer.nonEmpty) {
+      val char1 = buffer.last
+      combi.composite(char1, char2) match {
+        case Some(res) =>
+          buffer.dropRightInPlace(1)
+          compositionLevel -= 1
+
+          if (compositionLevel > 0 && buffer.last != '▲') {
+            val part1 = buffer.last
+            combi.composite(part1, res) match {
+              case Some(res2) =>
+                compositionLevel -= 1
+                outputBuffer += res2
+                buffer.dropRightInPlace(2)
+              case None =>
+            }
+          }
+
+          val pos = buffer.lastIndexOf('▲')
+          if (pos != -1) {
+            buffer.remove(pos)
+          }
+          buffer.append(res)
+
+        case None =>
+          buffer.dropRightInPlace(1)
+      }
+    }
+
+    if (!mixedMode && compositionLevel == 0) {
+      outputBuffer ++= buffer
+      buffer.clear()
     }
   }
 
