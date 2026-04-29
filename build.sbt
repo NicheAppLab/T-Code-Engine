@@ -5,7 +5,7 @@ lazy val root = project
   .settings(
     name := "tcodeengine",
 
-    version := "0.5.4-SNAPSHOT",
+    version := "0.6.0-SNAPSHOT",
 
     organization := "io.github.nicheapplab",
 
@@ -13,7 +13,9 @@ lazy val root = project
 
     publishMavenStyle := true,
 
-    libraryDependencies += "org.scalameta" %% "munit" % "1.2.4" % Test
+    libraryDependencies += "org.scalameta" %% "munit" % "1.2.4" % Test,
+
+    libraryDependencies += "com.lihaoyi" %% "upickle" % "4.4.3"
   )
 
 ThisBuild / publishTo := {
