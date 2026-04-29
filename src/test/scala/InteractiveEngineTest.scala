@@ -76,4 +76,8 @@ class InteractiveEngineTest extends munit.FunSuite {
     val res = ie.commit()
     assert( clue(res) == clue("丸") )
   }
+  test("北陸"){
+    "fjpbjc" foreach (ie.put(_))
+    assert( clue(ie.buffer.mkString) == clue("△北り") )
+  }
 }

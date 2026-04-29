@@ -3,22 +3,21 @@ package io.github.nicheapplab.tcodeengine
 import scala.collection.immutable.HashMap
 import scala.util.Using
 import java.util.zip.{ZipInputStream, ZipEntry}
-import java.io.{ObjectInputStream, InputStream}
+import upickle.default._
 
 trait CombinatorDictionary{
   val dictionary: HashMap[(Char, Char), Char] = {
     val inputStream = getClass.getResourceAsStream("/tcode_dict.zip")
     Using.resource(new ZipInputStream(inputStream)){ zis =>
       var entry: ZipEntry = zis.getNextEntry
-      var foundMap = HashMap[(Char, Char), Char]()
+      var foundMap = Map[(Char, Char), Char]()
       while(entry != null && foundMap.isEmpty){
-        if (entry.getName == "bushu.dat"){
-          val ois = new ObjectInputStream(zis)
-          foundMap = ois.readObject().asInstanceOf[HashMap[(Char, Char), Char]]
+        if (entry.getName == "bushu.msgpack"){
+          foundMap = upickle.default.readBinary[Map[(Char, Char), Char]](zis)
         }
         if (foundMap.isEmpty) entry = zis.getNextEntry()
       }
-      foundMap
+      foundMap.to(HashMap)
     }
   }
 
