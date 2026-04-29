@@ -5,7 +5,7 @@ lazy val root = project
   .settings(
     name := "tcodeengine",
 
-    version := "0.6.0-SNAPSHOT",
+    version := "0.6.1-SNAPSHOT",
 
     organization := "io.github.nicheapplab",
 
@@ -15,7 +15,9 @@ lazy val root = project
 
     libraryDependencies += "org.scalameta" %% "munit" % "1.2.4" % Test,
 
-    libraryDependencies += "com.lihaoyi" %% "upickle" % "4.4.3"
+    libraryDependencies += "com.lihaoyi" %% "upickle" % "4.4.3",
+
+    libraryDependencies += "org.xerial" % "sqlite-jdbc" % "3.53.0.0"
   )
 
 ThisBuild / publishTo := {
@@ -37,7 +39,7 @@ ThisBuild / developers := List(
     id = "kazuf3",
     name = "Kazuhiro Funakoshi",
     email = "steelheart.wolverine@gmail.com",
-    url = url("http://your.url")
+    url = url("https://nicheapplab.com")
   )
 )
 

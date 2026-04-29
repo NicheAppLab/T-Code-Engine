@@ -399,7 +399,12 @@ class EELLLTXT0 extends munit.FunSuite {
     test(lesson.name) {
       // Ignore tests where strokes haven't been implemented yet
       assume(!lesson.strokes.contains("TODO"), s"T-Code strokes missing for ${lesson.name}")
-      val engine = new BatchEngine with QwertyLayout
+
+      val tcode_tbl_path = System.getProperty("java.io.tempdir") ++ "/.t-code-engine/tcode_tbl.db"
+      val mazegaki_path = System.getProperty("java.io.tempdir") ++ "/.t-code-engine/mazegaki.db"
+      val bushu_path = System.getProperty("java.io.tempdir") ++ "/.t-code-engine/bushu.db"
+
+      val engine = new SQLiteBatchEngine(tcode_tbl_path, mazegaki_path, bushu_path) with QwertyLayout with SQLiteStrokes
 
       val result_array = lesson.strokes.map(str =>
         engine.convert(str)
