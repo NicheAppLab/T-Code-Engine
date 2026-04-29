@@ -1,6 +1,6 @@
 package io.github.nicheapplab.tcodeengine
 
-trait Combinator{ this: CombinatorDictionary =>
+trait Combinator (val strokes: Strokes) { this: CombinatorDictionary =>
   def composite(a: Char, b: Char): Option[Char] = find(a, b)
 
   import scala.util.control.TailCalls._
@@ -15,7 +15,7 @@ trait Combinator{ this: CombinatorDictionary =>
       loop(nextTail, acc ++ res.toList)
     }
     case (c1, c2) :: tail => {
-      val res = Strokes.get(c1,c2)
+      val res = strokes.getChar(c1,c2)
       loop(tail, acc.appended(res))
     }
   }
@@ -48,7 +48,7 @@ trait Combinator{ this: CombinatorDictionary =>
     input match {
       case Nil => (None, Nil)
       case (26, 23) :: tail => resolveComposite(tail)
-      case (c1, c2) :: tail   => (Some(Strokes.get(c1,c2)), tail)
+      case (c1, c2) :: tail   => (Some(strokes.getChar(c1,c2)), tail)
     }
   }
 }

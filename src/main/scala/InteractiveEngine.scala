@@ -3,24 +3,33 @@ package io.github.nicheapplab.tcodeengine
 import scala.collection.mutable.ListBuffer
 import scala.compiletime.ops.boolean
 
-/** Generates Japanese characters from key cordinates or Qwerty key chars with
-  * T-Code
+/** Abstract class of InteractiveEngine, which generates Japanese characters step by step, interacting the user with its method calls.
   *
-  * InteractiveEngine provides batched conversion into Japanese. Prefix key
+  * It has two subclasses:
+  * - [[ArchivedInteractiveEngine]] uses dictionary files from a zip archive file
+  * - [[SQLiteInteractiveEngine]] uses SQLite database which is created from the
+  * zip archive file
+  *
+  * Both of them uses [[Layout]] type for its self annotation.
+  * Currently [[QwertyLayout]] and [[DvorakLayout]] are supported.
+  *
+  * Prefix key
   * strokes should be included in the input key strokes. In the following
   * example, "fj" indicates entering Mixed Conversion mode (as "△", internally).
   * In this mode, user can feed *kanji* and *hiragana* mixed input and generates
   * conversion candidates through `convert()` function.
   * {{{
   * scala> import io.github.nicheapplab.tcodeengine._
-  * scala> val engine = new InteractiveEngine with QwertyLayout
+  * scala> val ie = new ArchivedInteractiveEngine with QwertyLayout
   * scala> "fjyijstt".foreach(ie.put(_))
   * scala> ie.inflexRight()
   * scala> ie.convert()
   * scala> ie.selectCandidate(0)
   * scala> ie.commit()
   * val res0: String = "記者"
-  * }}} To use *kanji* composition, type the prefix "jf" to enter Composition
+  * }}}
+  *
+  * To use *kanji* composition, type the prefix "jf" to enter Composition
   * mode (as "▲", internally). Composition mode can be nested as well as inside
   * of Mixed Conversion mode. In the following example, after typing "fjjfpw",
   * its internal buffer will be "△▲木". Followed by ".v" (corresponds to "目"),
@@ -35,7 +44,6 @@ import scala.compiletime.ops.boolean
   * the converted text "相次ぐ" into `outputBuffer`. To extract text from
   * `outputBuffer`, call `InteractiveEngine.commit()`.
   * {{{
-  * scala> val ie = new InteractiveEngine with QwertyLayout
   * scala> "fjjfpw.v.ddt".foreach(ie.put(_))
   * scala> ie.inflexLeft()
   * scala> ie.convert()
@@ -48,11 +56,10 @@ import scala.compiletime.ops.boolean
   * scala> ie.commit()
   * val res0: String = "相次ぐ火事により"
   * }}}
-  * Alternatively, a predefined [[DvorakLayout]] can be specified.
   */
-class InteractiveEngine { this: Layout =>
-  private val mixed = new MixedConverter with MixedConverterDictionary
-  private val combi = new Combinator with CombinatorDictionary
+abstract class InteractiveEngine extends Strokes { this: Layout =>
+  val mixed: MixedConverter
+  val combi: Combinator
   private val _outputBuffer = ListBuffer[Char]()
   private val _buffer = ListBuffer[Char]()
   private val _candidates = ListBuffer[String]()
@@ -95,9 +102,9 @@ class InteractiveEngine { this: Layout =>
     } else if (compositionLevel > 0) {
       handleCompositionInput(c1, c2)
     } else if (mixedMode) {
-      buffer += Strokes.get(c1, c2)
+      buffer += getChar(c1, c2)
     } else {
-      outputBuffer += Strokes.get(c1, c2)
+      outputBuffer += getChar(c1, c2)
     }
   }
 
@@ -112,7 +119,7 @@ class InteractiveEngine { this: Layout =>
   }
 
   private def handleCompositionInput(c1: Int, c2: Int): Unit = {
-    val char2 = Strokes.get(c1, c2)
+    val char2 = getChar(c1, c2)
     if (buffer.nonEmpty && buffer.last == '▲') {
       combi.composite(char2, ' ') match {
         case Some(res) =>
@@ -256,4 +263,37 @@ class InteractiveEngine { this: Layout =>
         return true
     }
   }
+}
+
+class ArchivedInteractiveEngine extends InteractiveEngine with ArchivedStrokes { this: Layout =>
+  val mixed = new MixedConverter with ArchivedMixedConverterDictionary
+  val combi = new Combinator(this) with ArchivedCombinatorDictionary
+}
+
+/**
+  * To use SQLite databases as dictionaries, it must be provided with file path for the database files.
+  * If any of the database files don't exist, the missing database file will be created from zip archived dictionary.
+  * {{{
+  * scala> import io.github.nicheapplab.tcodeengine._
+  *
+  * scala> val tcode_tbl_path = System.getProperty("java.io.tempdir") ++ "/.t-code-engine/tcode_tbl.db"
+  * scala> val mazegaki_path = System.getProperty("java.io.tempdir") ++ "/.t-code-engine/mazegaki.db"
+  * scala> val bushu_path = System.getProperty("java.io.tempdir") ++ "/.t-code-engine/bushu.db"
+   
+  * scala> val ie = new SQLiteInteractiveEngine(tcode_tbl_path, mazegaki_path, bushu_path) with QwertyLayout
+  * scala> "fjyijstt".foreach(ie.put(_))
+  * scala> ie.inflexRight()
+  * scala> ie.convert()
+  * scala> ie.selectCandidate(0)
+  * scala> ie.commit()
+  * val res0: String = "記者"
+  * }}}
+  * */
+class SQLiteInteractiveEngine(
+  tcode_tbl_path: String,
+  mazegaki_path: String,
+  bushu_path: String
+) extends InteractiveEngine with SQLiteStrokes(tcode_tbl_path) { this: Layout =>
+  val mixed = new MixedConverter with SQLiteMixedConverterDictionary(mazegaki_path)
+  val combi = new Combinator(this) with SQLiteCombinatorDictionary(bushu_path)
 }

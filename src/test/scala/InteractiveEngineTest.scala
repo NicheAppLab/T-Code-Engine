@@ -3,8 +3,11 @@
 package io.github.nicheapplab.tcodeengine
 
 class InteractiveEngineTest extends munit.FunSuite {
+  val tcode_tbl_path = System.getProperty("java.io.tempdir") ++ "/.t-code-engine/tcode_tbl.db"
+  val mazegaki_path = System.getProperty("java.io.tempdir") ++ "/.t-code-engine/mazegaki.db"
+  val bushu_path = System.getProperty("java.io.tempdir") ++ "/.t-code-engine/bushu.db"
 
-  val ie = new InteractiveEngine with QwertyLayout
+  val ie = new SQLiteInteractiveEngine(tcode_tbl_path, mazegaki_path, bushu_path) with QwertyLayout
 
   test("記しゃ"){
     "fjyijstt".foreach(ie.put(_))
