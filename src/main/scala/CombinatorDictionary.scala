@@ -41,17 +41,16 @@ object ArchivedCombinatorDictionaryFactory extends ArchivedCombinatorDictionary 
   }
 }
 
-trait SQLiteCombinatorDictionary(bushu_path: String) extends CombinatorDictionary{
+trait SQLiteCombinatorDictionary(jdbc_prefix: String, bushu_path: String) extends CombinatorDictionary{
 
   private var connection: java.sql.Connection = uninitialized
   private val dbfile = new File(bushu_path)
   if(!dbfile.exists()){
-    println(s"dbfile doesn't exist at ${dbfile.getAbsolutePath}")
     extractResource("/tcode_dict.zip", dbfile)
   }
 
   Class.forName("org.sqlite.JDBC")
-  connection = java.sql.DriverManager.getConnection(s"jdbc:sqlite:${dbfile.getAbsolutePath}")
+  connection = java.sql.DriverManager.getConnection(s"${jdbc_prefix}:${dbfile.getAbsolutePath}")
 
   private def extractResource(resourceName: String, destination: java.io.File): Unit = {
 
@@ -62,7 +61,7 @@ trait SQLiteCombinatorDictionary(bushu_path: String) extends CombinatorDictionar
       parent.mkdirs()
     }
     Class.forName("org.sqlite.JDBC")
-    connection = java.sql.DriverManager.getConnection(s"jdbc:sqlite:${dbfile.getAbsolutePath}")
+    connection = java.sql.DriverManager.getConnection(s"${jdbc_prefix}:${dbfile.getAbsolutePath}")
     val statement = connection.createStatement()
     statement.executeUpdate("CREATE TABLE IF NOT EXISTS bushu (char1 TEXT, char2 TEXT, result TEXT, PRIMARY KEY (char1, char2))")
     statement.close()

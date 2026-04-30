@@ -6,8 +6,9 @@ class CombinatorTest extends munit.FunSuite {
   private val tcode_tbl_path = System.getProperty("java.io.tempdir") ++ "/.t-code-engine/tcode_tbl.db"
   private val mazegaki_path = System.getProperty("java.io.tempdir") ++ "/.t-code-engine/mazegaki.db"
   private val bushu_path = System.getProperty("java.io.tempdir") ++ "/.t-code-engine/bushu.db"
+  private val jdbc_prefix = "jdbc:sqlite"
 
-  val engine = new SQLiteBatchEngine(tcode_tbl_path, mazegaki_path, bushu_path) with QwertyLayout with SQLiteStrokes
+  val engine = new SQLiteBatchEngine(jdbc_prefix, tcode_tbl_path, mazegaki_path, bushu_path) with QwertyLayout with SQLiteStrokes
 
   // Dynamically generate MUnit tests for every lesson
   // Ignore tests where strokes haven't been implemented yet

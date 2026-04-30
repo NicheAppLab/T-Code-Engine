@@ -279,8 +279,8 @@ class ArchivedInteractiveEngine extends InteractiveEngine with ArchivedStrokes {
   * scala> val tcode_tbl_path = System.getProperty("java.io.tempdir") ++ "/.t-code-engine/tcode_tbl.db"
   * scala> val mazegaki_path = System.getProperty("java.io.tempdir") ++ "/.t-code-engine/mazegaki.db"
   * scala> val bushu_path = System.getProperty("java.io.tempdir") ++ "/.t-code-engine/bushu.db"
-   
-  * scala> val ie = new SQLiteInteractiveEngine(tcode_tbl_path, mazegaki_path, bushu_path) with QwertyLayout
+  * scala> val jdbc_prefix = "jdbc:sqlite"
+  * scala> val ie = new SQLiteInteractiveEngine(jdbc_prefix, tcode_tbl_path, mazegaki_path, bushu_path) with QwertyLayout
   * scala> "fjyijstt".foreach(ie.put(_))
   * scala> ie.inflexRight()
   * scala> ie.convert()
@@ -290,10 +290,11 @@ class ArchivedInteractiveEngine extends InteractiveEngine with ArchivedStrokes {
   * }}}
   * */
 class SQLiteInteractiveEngine(
+  jdbc_prefix: String,
   tcode_tbl_path: String,
   mazegaki_path: String,
   bushu_path: String
-) extends InteractiveEngine with SQLiteStrokes(tcode_tbl_path) { this: Layout =>
-  val mixed = new MixedConverter with SQLiteMixedConverterDictionary(mazegaki_path)
-  val combi = new Combinator(this) with SQLiteCombinatorDictionary(bushu_path)
+) extends InteractiveEngine with SQLiteStrokes(jdbc_prefix, tcode_tbl_path) { this: Layout =>
+  val mixed = new MixedConverter with SQLiteMixedConverterDictionary(jdbc_prefix, mazegaki_path)
+  val combi = new Combinator(this) with SQLiteCombinatorDictionary(jdbc_prefix, bushu_path)
 }

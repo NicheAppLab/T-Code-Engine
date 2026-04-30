@@ -33,8 +33,8 @@ object ArchivedStrokesFactory extends ArchivedStrokes {
   }
 }
 
-trait SQLiteStrokes (dbPath: String) extends Strokes{
-  
+trait SQLiteStrokes (jdbc_prefix: String, dbPath: String) extends Strokes{
+
   private var connection: java.sql.Connection = uninitialized
   private val dbfile = new File(dbPath)
   if(!dbfile.exists()){
@@ -43,7 +43,7 @@ trait SQLiteStrokes (dbPath: String) extends Strokes{
   }
 
   Class.forName("org.sqlite.JDBC")
-  connection = java.sql.DriverManager.getConnection(s"jdbc:sqlite:${dbfile.getAbsolutePath}")
+  connection = java.sql.DriverManager.getConnection(s"${jdbc_prefix}:${dbfile.getAbsolutePath}")
 
   private def extractResource(resourceName: String, destination: java.io.File): Unit = {
 
@@ -54,7 +54,7 @@ trait SQLiteStrokes (dbPath: String) extends Strokes{
       parent.mkdirs()
     }
     Class.forName("org.sqlite.JDBC")
-    connection = java.sql.DriverManager.getConnection(s"jdbc:sqlite:${dbfile.getAbsolutePath}")
+    connection = java.sql.DriverManager.getConnection(s"${jdbc_prefix}:${dbfile.getAbsolutePath}")
     val statement = connection.createStatement()
     statement.executeUpdate("CREATE TABLE IF NOT EXISTS tcode_tbl (idx1 INTEGER, idx2 INTEGER, character TEXT, PRIMARY KEY (idx1, idx2))")
     statement.close()
