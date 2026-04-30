@@ -40,7 +40,7 @@ object ArchivedMixedConverterDictionaryFactory{
   }
 }
 
-trait SQLiteMixedConverterDictionary (mazegaki_path: String) extends MixedConverterDictionary {
+trait SQLiteMixedConverterDictionary (jdbc_prefix: String, mazegaki_path: String) extends MixedConverterDictionary {
   private var connection: java.sql.Connection = uninitialized
   private val dbfile = new File(mazegaki_path)
   if(!dbfile.exists()){
@@ -49,7 +49,7 @@ trait SQLiteMixedConverterDictionary (mazegaki_path: String) extends MixedConver
   }
 
   Class.forName("org.sqlite.JDBC")
-  connection = java.sql.DriverManager.getConnection(s"jdbc:sqlite:${dbfile.getAbsolutePath}")
+  connection = java.sql.DriverManager.getConnection(s"${jdbc_prefix}:${dbfile.getAbsolutePath}")
 
   private def extractResource(resourceName: String, destination: java.io.File): Unit = {
 
