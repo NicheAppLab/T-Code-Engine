@@ -2,51 +2,46 @@
 // https://scalameta.org/munit/docs/getting-started.html
 package io.github.nicheapplab.tcodeengine
 
-class CombinatorTest extends munit.FunSuite {
-  private val tcode_tbl_path = System.getProperty("java.io.tempdir") ++ "/.t-code-engine/tcode_tbl.db"
-  private val mazegaki_path = System.getProperty("java.io.tempdir") ++ "/.t-code-engine/mazegaki.db"
-  private val bushu_path = System.getProperty("java.io.tempdir") ++ "/.t-code-engine/bushu.db"
-  private val jdbc_prefix = "jdbc:sqlite"
+class CombinatorTest extends BatchEngineFixture {
 
-  val engine = new SQLiteBatchEngine(jdbc_prefix, tcode_tbl_path, mazegaki_path, bushu_path) with QwertyLayout with SQLiteStrokes
-
-  // Dynamically generate MUnit tests for every lesson
-  // Ignore tests where strokes haven't been implemented yet
   test("上"){
+    val be = engine()
     val stroke = "ht"
-    assertEquals(engine.convert(stroke),"上")
+    assertEquals(be.convert(stroke),"上")
   }
   test("七"){
+    val be = engine()
     val stroke = "ib"
-    assertEquals(engine.convert(stroke), "七")
+    assertEquals(be.convert(stroke), "七")
   }
   test("虍"){
-    val left = engine.combi.composite('上','七')
+    val be = engine()
+    val left = be.combi.composite('上','七')
     assertEquals(left, Some('虍'))
   }
   test("虍 in composite"){
-    val left = engine.convert("jfibht")
+    val be = engine()
+    val left = be.convert("jfibht")
     assertEquals(left, "虍")
   }
-
-
   test("劇"){
-    val ans = engine.combi.composite('虍', 'リ')
+    val be = engine()
+    val ans = be.combi.composite('虍', 'リ')
     assertEquals(ans, Some('劇'))
   }
   test("劇 in composite"){
-    val ans = engine.convert("jfjfibhtpd")
+    val be = engine()
+    val ans = be.convert("jfjfibhtpd")
     assertEquals(ans, "劇")
   }
   test("劇丶 in composite"){
-    val ans = engine.convert("jfjfibhtpdjfjd")
+    val be = engine()
+    val ans = be.convert("jfjfibhtpdjfjd")
     assertEquals(ans, "劇丶")
   }
   test("丶劇 in composite"){
-    val ans = engine.convert("jfjdjfjfibhtpd")
+    val be = engine()
+    val ans = be.convert("jfjdjfjfibhtpd")
     assertEquals(ans, "丶劇")
   }
-
-
-
 }
