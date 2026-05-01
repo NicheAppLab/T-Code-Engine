@@ -49,7 +49,6 @@ trait SQLiteCombinatorDictionary(jdbc_prefix: String, bushu_path: String) extend
     extractResource("/tcode_dict.zip", dbfile)
   }
 
-  Class.forName("org.sqlite.JDBC")
   connection = java.sql.DriverManager.getConnection(s"${jdbc_prefix}:${dbfile.getAbsolutePath}")
 
   private def extractResource(resourceName: String, destination: java.io.File): Unit = {
@@ -60,7 +59,6 @@ trait SQLiteCombinatorDictionary(jdbc_prefix: String, bushu_path: String) extend
     if (parent != null && !parent.exists()) {
       parent.mkdirs()
     }
-    Class.forName("org.sqlite.JDBC")
     connection = java.sql.DriverManager.getConnection(s"${jdbc_prefix}:${dbfile.getAbsolutePath}")
     val statement = connection.createStatement()
     statement.executeUpdate("CREATE TABLE IF NOT EXISTS bushu (char1 TEXT, char2 TEXT, result TEXT, PRIMARY KEY (char1, char2))")
