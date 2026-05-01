@@ -42,7 +42,6 @@ trait SQLiteStrokes (jdbc_prefix: String, dbPath: String) extends Strokes{
     extractResource("/tcode_dict.zip", dbfile)
   }
 
-  Class.forName("org.sqlite.JDBC")
   connection = java.sql.DriverManager.getConnection(s"${jdbc_prefix}:${dbfile.getAbsolutePath}")
 
   private def extractResource(resourceName: String, destination: java.io.File): Unit = {
@@ -53,7 +52,6 @@ trait SQLiteStrokes (jdbc_prefix: String, dbPath: String) extends Strokes{
     if (parent != null && !parent.exists()) {
       parent.mkdirs()
     }
-    Class.forName("org.sqlite.JDBC")
     connection = java.sql.DriverManager.getConnection(s"${jdbc_prefix}:${dbfile.getAbsolutePath}")
     val statement = connection.createStatement()
     statement.executeUpdate("CREATE TABLE IF NOT EXISTS tcode_tbl (idx1 INTEGER, idx2 INTEGER, character TEXT, PRIMARY KEY (idx1, idx2))")

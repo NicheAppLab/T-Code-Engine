@@ -48,7 +48,6 @@ trait SQLiteMixedConverterDictionary (jdbc_prefix: String, mazegaki_path: String
     extractResource("/tcode_dict.zip", dbfile)
   }
 
-  Class.forName("org.sqlite.JDBC")
   connection = java.sql.DriverManager.getConnection(s"${jdbc_prefix}:${dbfile.getAbsolutePath}")
 
   private def extractResource(resourceName: String, destination: java.io.File): Unit = {
@@ -59,7 +58,6 @@ trait SQLiteMixedConverterDictionary (jdbc_prefix: String, mazegaki_path: String
     if (parent != null && !parent.exists()) {
       parent.mkdirs()
     }
-    Class.forName("org.sqlite.JDBC")
     connection = java.sql.DriverManager.getConnection(s"jdbc:sqlite:${dbfile.getAbsolutePath}")
     val statement = connection.createStatement()
     statement.executeUpdate("CREATE TABLE IF NOT EXISTS mazegaki (key_str TEXT, value_str, TEXT, UNIQUE(key_str, value_str))")
