@@ -2,19 +2,18 @@
 // https://scalameta.org/munit/docs/getting-started.html
 package io.github.nicheapplab.tcodeengine
 
-class MixedConverterTest extends munit.FunSuite {
-  val mazegaki_path = System.getProperty("java.io.tempdir") ++ "/.t-code-engine/mazegaki.db"
-  val jdbc_prefix = "jdbc:sqlite"
-
-  val mixed = new MixedConverter with SQLiteMixedConverterDictionary(jdbc_prefix, mazegaki_path)
+class MixedConverterTest extends BatchEngineFixture {
 
   test("記しゃ"){
+    val mixed = engine().mixed
     assertEquals(mixed.convert("記しゃ").contains("記者"), true)
   }
   test("花だん"){
+    val mixed = engine().mixed
     assertEquals(mixed.convert("花だん").contains("花壇"), true)
   }
   test("加える"){
+    val mixed = engine().mixed
     val candidates = mixed.convert("くわえ","る")
     assertEquals(candidates.toList, List("加える"))
   }
