@@ -117,7 +117,6 @@ abstract class InteractiveEngine extends Strokes { this: Layout =>
     mixedMode = true
     buffer += '△'
   }
-
   private def handleCompositionInput(c1: Int, c2: Int): Unit = {
     val char2 = getChar(c1, c2)
     if (buffer.nonEmpty && buffer.last == '▲') {

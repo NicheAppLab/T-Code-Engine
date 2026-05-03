@@ -2,7 +2,7 @@
 // https://scalameta.org/munit/docs/getting-started.html
 package io.github.nicheapplab.tcodeengine
 
-class InteractiveEngineFixture extends munit.FunSuite {
+class SQLiteInteractiveEngineFixture extends munit.FunSuite {
   val engine = new Fixture[SQLiteInteractiveEngine] ("interactive engine"){
     var engine: SQLiteInteractiveEngine = null
     def apply() = engine
@@ -15,6 +15,22 @@ class InteractiveEngineFixture extends munit.FunSuite {
       Class.forName("org.sqlite.JDBC")
 
       engine = new SQLiteInteractiveEngine(jdbc_prefix, tcode_tbl_path, mazegaki_path, bushu_path) with QwertyLayout
+    }
+    override def afterEach(context: AfterEach): Unit = {
+      engine.reset()
+    }
+  }
+  override def munitFixtures = List(engine)
+  test("engine exists"){
+    assert(engine() != null)
+  }
+}
+class ArchivedInteractiveEngineFixture extends munit.FunSuite {
+  val engine = new Fixture[ArchivedInteractiveEngine] ("interactive engine"){
+    var engine: ArchivedInteractiveEngine = null
+    def apply() = engine
+    override def beforeEach(context: BeforeEach): Unit = {
+      engine = new ArchivedInteractiveEngine with QwertyLayout
     }
     override def afterEach(context: AfterEach): Unit = {
       engine = null
