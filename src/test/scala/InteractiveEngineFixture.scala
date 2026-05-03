@@ -2,8 +2,10 @@
 // https://scalameta.org/munit/docs/getting-started.html
 package io.github.nicheapplab.tcodeengine
 
-class SQLiteInteractiveEngineFixture extends munit.FunSuite {
-  val engine = new Fixture[SQLiteInteractiveEngine] ("interactive engine"){
+import munit.{FunSuite, Fixture, BeforeEach, AfterEach}
+
+trait SQLiteInteractiveEngineFixture { self: FunSuite =>
+  val sqliteEngine = new Fixture[SQLiteInteractiveEngine] ("interactive engine"){
     var engine: SQLiteInteractiveEngine = null
     def apply() = engine
     override def beforeEach(context: BeforeEach): Unit = {
@@ -20,13 +22,9 @@ class SQLiteInteractiveEngineFixture extends munit.FunSuite {
       engine.reset()
     }
   }
-  override def munitFixtures = List(engine)
-  test("engine exists"){
-    assert(engine() != null)
-  }
 }
-class ArchivedInteractiveEngineFixture extends munit.FunSuite {
-  val engine = new Fixture[ArchivedInteractiveEngine] ("interactive engine"){
+trait ArchivedInteractiveEngineFixture { self: FunSuite =>
+  val archivedEngine = new Fixture[ArchivedInteractiveEngine] ("interactive engine"){
     var engine: ArchivedInteractiveEngine = null
     def apply() = engine
     override def beforeEach(context: BeforeEach): Unit = {
@@ -35,9 +33,5 @@ class ArchivedInteractiveEngineFixture extends munit.FunSuite {
     override def afterEach(context: AfterEach): Unit = {
       engine = null
     }
-  }
-  override def munitFixtures = List(engine)
-  test("engine exists"){
-    assert(engine() != null)
   }
 }

@@ -29,22 +29,24 @@ import scala.compiletime.ops.boolean
   * val res0: String = "記者"
   * }}}
   *
-  * To use *kanji* composition, type the prefix "jf" to enter Composition
-  * mode (as "▲", internally). Composition mode can be nested as well as inside
-  * of Mixed Conversion mode. In the following example, after typing "fjjfpw",
-  * its internal buffer will be "△▲木". Followed by ".v" (corresponds to "目"),
-  * "▲木" will be popped and composition consumes them, generating "相". The
-  * internal buffer will be "△相". Then typing ".d" ("つ") and "dt"("ぐ") will
-  * make the internal buffer to "△相つぐ". `InteractiveEngine.inflexLeft()`
-  * makes it to "△相つ|ぐ", which indicates "ぐ" is the inflex for the
-  * conversion. `InteractiveEngine.convert()` will clear the buffer and put the
-  * candidates into `InteractiveEngine.candidates` buffer. The user then can
-  * choose the desired candidate with its index of the buffer, such as
-  * `ie.selectCandidates(3)`. This will clear the `candidates` buffer and put
-  * the converted text "相次ぐ" into `outputBuffer`. To extract text from
-  * `outputBuffer`, call `InteractiveEngine.commit()`.
+  * To use *kanji* composition, type the prefix "jf" to enter Composition mode
+  * (as "▲", internally). Composition mode can be nested as well as inside of
+  * Mixed Conversion mode. In the following example, after typing "fjjfpw.v",
+  * its internal buffer will be "△▲木目". By calling
+  * `InteractiveEngine.convert()`, "相" will be generated and "▲" will be
+  * consumed. The internal buffer will be "△相". Then typing ".d" ("つ") and
+  * "dt"("ぐ") will make the internal buffer to "△相つぐ".
+  * `InteractiveEngine.inflexLeft()` makes it to "△相つ|ぐ", which indicates "ぐ
+  * " is the inflex for the conversion. `InteractiveEngine.convert()` generates
+  * `InteractiveEngine.candidates` buffer. Then the user can choose the desired
+  * candidate with its index of the buffer, such as `ie.selectCandidates(3)`.
+  * This will clear the `candidates` buffer and put the converted text "相次ぐ"
+  * into `outputBuffer`. To extract text from `outputBuffer`, call
+  * `InteractiveEngine.commit()`.
   * {{{
-  * scala> "fjjfpw.v.ddt".foreach(ie.put(_))
+  * scala> "fjjfpw.v".foreach(ie.put(_))
+  * scala> ie.convert()
+  * scala> ".ddt".foreach(ie.put(_))
   * scala> ie.inflexLeft()
   * scala> ie.convert()
   * scala> ie.selectCandidates(0)
@@ -65,7 +67,6 @@ abstract class InteractiveEngine extends Strokes { this: Layout =>
   private val _candidates = ListBuffer[String]()
   private var inflexPos: Option[Int] = None
   private var mixedMode = false
-  private var compositionLevel = 0
   private val KEY_F = 23
   private val KEY_J = 26
   private var _lastChar: Option[Int] = None
@@ -95,12 +96,12 @@ abstract class InteractiveEngine extends Strokes { this: Layout =>
   private def processStroke(c1: Int, c2: Int): Unit = {
     if (c1 == KEY_J && c2 == KEY_F) {
       enterCompositionMode()
-    } else if (c1 == KEY_F && c2 == KEY_J && !mixedMode && compositionLevel == 0) {
+    } else if (c1 == KEY_F && c2 == KEY_J && !mixedMode) {
       enterMixedMode()
     } else if (c1 == KEY_F && c2 == KEY_J && mixedMode) {
       // Ignore "fj" (Mixed mode prefix) if already in mixed mode
-    } else if (compositionLevel > 0) {
-      handleCompositionInput(c1, c2)
+    } else if (buffer.contains('▲')){
+      buffer += getChar(c1, c2)
     } else if (mixedMode) {
       buffer += getChar(c1, c2)
     } else {
@@ -109,7 +110,6 @@ abstract class InteractiveEngine extends Strokes { this: Layout =>
   }
 
   private def enterCompositionMode(): Unit = {
-    compositionLevel += 1
     buffer += '▲'
   }
 
@@ -117,52 +117,6 @@ abstract class InteractiveEngine extends Strokes { this: Layout =>
     mixedMode = true
     buffer += '△'
   }
-  private def handleCompositionInput(c1: Int, c2: Int): Unit = {
-    val char2 = getChar(c1, c2)
-    if (buffer.nonEmpty && buffer.last == '▲') {
-      combi.composite(char2, ' ') match {
-        case Some(res) =>
-          buffer.dropRightInPlace(1)
-          buffer.append(res)
-          compositionLevel -= 1
-        case None =>
-          buffer.append(char2)
-      }
-    } else if (buffer.nonEmpty) {
-      val char1 = buffer.last
-      combi.composite(char1, char2) match {
-        case Some(res) =>
-          buffer.dropRightInPlace(1)
-          compositionLevel -= 1
-
-          if (compositionLevel > 0 && buffer.last != '▲') {
-            val part1 = buffer.last
-            combi.composite(part1, res) match {
-              case Some(res2) =>
-                compositionLevel -= 1
-                outputBuffer += res2
-                buffer.dropRightInPlace(2)
-              case None =>
-            }
-          }
-
-          val pos = buffer.lastIndexOf('▲')
-          if (pos != -1) {
-            buffer.remove(pos)
-          }
-          buffer.append(res)
-
-        case None =>
-          buffer.dropRightInPlace(1)
-      }
-    }
-
-    if (!mixedMode && compositionLevel == 0) {
-      outputBuffer ++= buffer
-      buffer.clear()
-    }
-  }
-
   def inflexLeft() = inflexPos match {
     case None if buffer.size == 0 => {}
     case None =>
@@ -199,34 +153,59 @@ abstract class InteractiveEngine extends Strokes { this: Layout =>
     inflexPos = None
     _lastChar = None
   }
-  def convert() = if (candidates.isEmpty) _convert()
-  private def _convert() = {
-    buffer.remove(buffer.indexOf('△'))
-    inflexPos match {
-      case None =>
-        candidates ++= mixed.convert(buffer.mkString)
-      case Some(n) =>
-        if (buffer.head == '|') {
-          candidates += buffer.slice(1, buffer.size).mkString
-        } else if (buffer.last == '|') {
-          candidates ++= mixed.convert(
-            buffer.slice(0, buffer.size - 1).mkString
-          )
-        } else {
-          val index = buffer.indexOf('|')
-          val (target, bar_inflex) = buffer.splitAt(index)
-          val inflex = bar_inflex.slice(1, bar_inflex.size)
-          candidates ++= mixed.convert(target.mkString, inflex.mkString)
-        }
+  def convert() = {
+    candidates.clear()
+    if(buffer.contains('▲')){
+      val last = buffer.last
+      buffer.dropRightInPlace(1)
+      val span = buffer.slice(buffer.indexOf('▲'), buffer.length)
+      buffer.remove(buffer.indexOf('▲'), span.length)
+      val result = combi.resolveComposition(last, span)
+      buffer.append(result)
+    } else {
+      inflexPos match {
+        case None =>
+          // ("△target")
+          // convert target but exclude △
+          candidates ++= mixed.convert(buffer.slice(1, buffer.length).mkString)
+        case Some(n) =>
+          if (buffer(1) == '|') {
+            // ("△|target")
+            // just copy, but excludes △ and |
+            candidates += buffer.slice(2, buffer.size).mkString
+          } else if (buffer.last == '|') {
+            println("inflex found at the end of target")
+            // ("△target|")
+            // convert target, exclude △ and |
+            val converting_target = buffer.slice(1, buffer.size - 1).mkString
+            println(s"convert target: ${converting_target.mkString}")
+            candidates ++= mixed.convert(
+              converting_target
+            )
+          } else {
+            // ("△targe|t")
+            // convert "targe" with inflex "t"
+            val index = buffer.indexOf('|')
+            val (target, bar_inflex) = buffer.splitAt(index)
+            val inflex = bar_inflex.slice(1, bar_inflex.size)
+            val converting_target = target.slice(1, target.length).mkString
+            candidates ++= mixed.convert(converting_target.mkString, inflex.mkString)
+          }
+      }
     }
-    buffer.clear()
-    inflexPos = None
-    mixedMode = false
   }
   def selectCandidate(n: Int) = {
-    if(!candidates.isEmpty)
+    try {
       outputBuffer ++= candidates(n)
-    candidates.clear()
+      candidates.clear()
+      buffer.clear()
+      inflexPos = None
+      mixedMode = false
+      true
+    } catch {
+      case e:IndexOutOfBoundsException => {false}
+    }
+
   }
 
   def commit(): String = {
@@ -235,12 +214,8 @@ abstract class InteractiveEngine extends Strokes { this: Layout =>
     res.mkString
   }
 
-  def backspace(): Boolean = if (candidates.isEmpty){
-    _backspace()
-  } else {
-    true
-  }
-  private def _backspace(): Boolean = {
+  def backspace(): Boolean = {
+    candidates.clear()
     (lastChar, buffer.isEmpty, outputBuffer.isEmpty) match{
       case (Some(_), _, _) =>
         _lastChar = None
@@ -249,7 +224,6 @@ abstract class InteractiveEngine extends Strokes { this: Layout =>
         return false
       case (None, false, _) =>
         if (buffer.last == '▲'){
-          compositionLevel -= 1
         } else if(buffer.last == '△') {
           mixedMode = false
         } else if(buffer.last == '|'){

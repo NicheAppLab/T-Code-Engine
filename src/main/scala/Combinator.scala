@@ -1,5 +1,7 @@
 package io.github.nicheapplab.tcodeengine
 
+import scala.collection.mutable.ListBuffer
+
 trait Combinator (val strokes: Strokes) { this: CombinatorDictionary =>
   def composite(a: Char, b: Char): Option[Char] = {
     findComposition(a, b) orElse{
@@ -21,6 +23,32 @@ trait Combinator (val strokes: Strokes) { this: CombinatorDictionary =>
       val from_parts_of_a = findParts(a).flatMap(pair => composite(pair._1, b) orElse composite(pair._2, b))
       val from_parts_of_b = findParts(b).flatMap(pair => composite(a, pair._1) orElse composite(a, pair._2))
       (from_parts_of_a ++ from_parts_of_b).headOption
+    }
+  }
+  def resolveComposition(focused: Char, remaining: ListBuffer[Char]): Char = {
+    val compositionLevel = remaining.count(_ == '▲')
+    if (compositionLevel <= 0 || remaining.isEmpty){
+      focused
+    } else if (remaining.last != '▲') {
+      val last: Char = remaining.last
+      composite(last, focused) match {
+        case Some(res) => {
+          remaining.dropRightInPlace(1) // drop last letter
+          remaining.remove(remaining.lastIndexOf('▲')) // drop ▲
+          resolveComposition(res, remaining)
+        }
+        case None => ' '
+      }
+    } else {
+      composite(focused, ' ') match{
+        case Some(res) => {
+          remaining.dropRightInPlace(1)
+          resolveComposition(res, remaining)
+        }
+        case None => {
+          focused
+        }
+      }
     }
   }
 

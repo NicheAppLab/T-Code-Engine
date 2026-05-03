@@ -2,7 +2,9 @@
 // https://scalameta.org/munit/docs/getting-started.html
 package io.github.nicheapplab.tcodeengine
 
-class InteractiveEngineTest extends SQLiteInteractiveEngineFixture {
+abstract class InteractiveEngineTestBase[T <: InteractiveEngine] extends munit.FunSuite {
+  def engine: Fixture[T]
+  override def munitFixtures = List(engine)
 
   test("記しゃ"){
     val ie = engine()
@@ -33,7 +35,11 @@ class InteractiveEngineTest extends SQLiteInteractiveEngineFixture {
   }
   test("相次ぐ"){
     val ie = engine()
-    "fjjfpw.v.ddt".foreach(ie.put(_))
+    "fjjfpw.v".foreach { c =>
+      ie.put(c)
+    }
+    ie.convert()
+    ".ddt".foreach(ie.put(_))
     ie.inflexLeft()
     ie.convert()
     ie.selectCandidate(0)
@@ -42,7 +48,9 @@ class InteractiveEngineTest extends SQLiteInteractiveEngineFixture {
   }
   test("相次ぐ火事により"){
     val ie = engine()
-    "fjjfpw.v.ddt".foreach(ie.put(_))
+    "fjjfpw.v".foreach(ie.put(_))
+    ie.convert()
+    ".ddt".foreach(ie.put(_))
     ie.inflexLeft()
     ie.convert()
     ie.selectCandidate(0)
@@ -56,9 +64,10 @@ class InteractiveEngineTest extends SQLiteInteractiveEngineFixture {
   }
   test("劇"){
     val ie = engine()
-    "jfjfhtibpd".foreach{ c=>
+    "jfjfpdhtib".foreach{ c=>
       ie.put(c)
     }
+    ie.convert()
     val res = ie.commit()
     assert( clue(res) == clue("劇") )
   }
@@ -71,28 +80,35 @@ class InteractiveEngineTest extends SQLiteInteractiveEngineFixture {
     ie.put('p')
     ie.put('w')
     ".v".foreach(ie.put(_))
+    ie.convert()
     val res = ie.commit()
     assert( clue(res) == clue("相") )
   }
   test("丸"){
     val ie = engine()
-    "jfjfjdnr".foreach{ c=>
+    "jfnrjfjd".foreach{ c=>
       ie.put(c)
     }
+    ie.convert()
     val res = ie.commit()
     assert( clue(res) == clue("丸") )
   }
   test("北陸"){
     val ie = engine()
-    "fjpbjc" foreach (ie.put(_))
-    assert( clue(ie.buffer.mkString) == clue("△北り") )
+    "fjpbjcjt" foreach (ie.put(_))
+    println(s"input: ${ie.buffer.mkString}")
+    ie.convert()
+    println(s"candidates:${ie.candidates.mkString}")
+    ie.selectCandidate(0)
+    val res = ie.commit()
+    assert( clue(res) == clue("北陸") )
   }
   test("頭-豆"){
     val ie = engine()
-    assert( ie.combi.composite('頭', '豆') == Some('頁'))
     "jfsc4,".foreach{ c =>
       ie.put(c)
     }
+    ie.convert()
     val res = ie.commit()
     assert( clue(res) == clue("頁"))
   }
@@ -102,20 +118,30 @@ class InteractiveEngineTest extends SQLiteInteractiveEngineFixture {
     "jfscjy".foreach{ c =>
       ie.put(c)
     }
+    ie.convert()
     val res = ie.commit()
     assert( clue(res) == clue("頁"))
   }
   test("項 from 工 + 頭&題"){
     val ie = engine()
-    "jfjfscjyme".foreach(ie.put(_))
+    "jfmejfscjy".foreach(ie.put(_))
+    ie.convert()
     val res = ie.commit()
     assert( clue(res) == clue ("項"))
   }
   test("項 from 頭+工"){
     val ie = engine()
-    "jfscme".foreach(ie.put(_))
+    "jfmesc".foreach(ie.put(_))
+    ie.convert()
     val res = ie.commit()
     assert( clue(res) == clue ("項"))
-    // note: since 工(kanji) will be エ(kata), this won't work in reversed order
   }
 }
+class SQLiteInteractiveEngineTest extends InteractiveEngineTestBase[SQLiteInteractiveEngine] with SQLiteInteractiveEngineFixture {
+  override val engine = sqliteEngine
+}
+class ArchivedInteractiveEngineTest extends InteractiveEngineTestBase[ArchivedInteractiveEngine] with ArchivedInteractiveEngineFixture {
+  override val engine = archivedEngine
+}
+
+
