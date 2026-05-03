@@ -1,7 +1,22 @@
 package io.github.nicheapplab.tcodeengine
 
 trait Combinator (val strokes: Strokes) { this: CombinatorDictionary =>
-  def composite(a: Char, b: Char): Option[Char] = find(a, b)
+  def composite(a: Char, b: Char): Option[Char] = {
+    findComposition(a, b) orElse{
+      // subtract
+      // e.g. 頭 - 豆 = 頁
+      findParts(a).collectFirst {
+        case (x, y) if x == b => y
+        case (x, y) if y == b => x
+      }
+    } orElse {
+      // extract common parts
+      // e.g. 頭 & 題 = 頁
+      val parts_a = findParts(a).flatMap( pair => Seq(pair._1, pair._2) ).toSet
+      val parts_b = findParts(b).flatMap( pair => Seq(pair._1, pair._2) ).toSet
+      (parts_a intersect parts_b).headOption
+    }
+  }
 
   import scala.util.control.TailCalls._
 
@@ -25,7 +40,7 @@ trait Combinator (val strokes: Strokes) { this: CombinatorDictionary =>
     first match{
       case None => (None, input)
       case Some(c1) => {
-        find(c1, ' ') match
+        findComposition(c1, ' ') match
         case None => {
           val (second, tail2) = resolveNext(tail1)
           // Use for-comprehension to handle the nested Options

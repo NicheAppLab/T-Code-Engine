@@ -1,6 +1,7 @@
 package io.github.nicheapplab.tcodeengine
 
 import scala.collection.immutable.HashMap
+import scala.collection.mutable.ArrayBuffer
 import scala.util.Using
 import java.util.zip.{ZipInputStream, ZipEntry}
 import java.io.File
@@ -8,20 +9,24 @@ import upickle.default._
 import java.sql.{Connection, PreparedStatement, ResultSet}
 import scala.compiletime.uninitialized
 
-
 abstract trait CombinatorDictionary{
-  def find(a: Char, b: Char): Option[Char]
+  def findComposition(a: Char, b: Char): Option[Char]
+  def findParts(result: Char): Array[(Char, Char)]
 }
 
 trait ArchivedCombinatorDictionary extends CombinatorDictionary {
   val dictionary: HashMap[(Char, Char), Char] = ArchivedCombinatorDictionaryFactory.readDictionary()
+  val undictionary: HashMap[Char, Array[(Char, Char)]] = dictionary.toArray.groupMap(_._2)(_._1).to(HashMap)
 
-  override def find(a: Char, b: Char): Option[Char] = {
+  override def findComposition(a: Char, b: Char): Option[Char] = {
     dictionary.get(a, b) orElse dictionary.get(b, a)
+  }
+  override def findParts(result: Char): Array[(Char, Char)] = {
+    undictionary.getOrElse(result, Array[(Char, Char)]())
   }
 }
 
-object ArchivedCombinatorDictionaryFactory extends ArchivedCombinatorDictionary {
+object ArchivedCombinatorDictionaryFactory{
   def readDictionary(): HashMap[(Char, Char), Char] = {
     val inputStream = getClass.getResourceAsStream("/tcode_dict.zip")
     Using.resource(new ZipInputStream(inputStream)){ zis =>
@@ -35,9 +40,6 @@ object ArchivedCombinatorDictionaryFactory extends ArchivedCombinatorDictionary 
       }
       foundMap.to(HashMap)
     }
-  }
-  override def find(a: Char, b: Char): Option[Char] = {
-    dictionary.get(a, b) orElse dictionary.get(b, a)
   }
 }
 
@@ -62,7 +64,8 @@ trait SQLiteCombinatorDictionary(jdbc_prefix: String, bushu_path: String) extend
     connection = java.sql.DriverManager.getConnection(s"${jdbc_prefix}:${dbfile.getAbsolutePath}")
     val statement = connection.createStatement()
     statement.executeUpdate("CREATE TABLE IF NOT EXISTS bushu (char1 TEXT, char2 TEXT, result TEXT, PRIMARY KEY (char1, char2))")
-    statement.close()
+    statement.executeUpdate("CREATE INDEX idx_result ON bushu(result)")
+
 
     val sql = "INSERT OR IGNORE INTO bushu (char1, char2, result) VALUES (?, ?, ?)"
     connection.setAutoCommit(false)
@@ -91,7 +94,25 @@ trait SQLiteCombinatorDictionary(jdbc_prefix: String, bushu_path: String) extend
 
   }
 
-  override def find(a: Char, b: Char): Option[Char] = {
+  override def findParts(result: Char): Array[(Char, Char)] = {
+    val sql = "SELECT char1, char2 FROM bushu WHERE result = ?"
+    val stmt = connection.prepareStatement(sql)
+    try {
+      stmt.setString(1, result.toString)
+      val rs = stmt.executeQuery()
+      val buffer = ArrayBuffer[(Char, Char)]()
+
+      while(rs.next()) {
+        val c1 = rs.getString("char1").head
+        val c2 = rs.getString("char2").head
+        buffer += (c1 -> c2)
+      }
+      buffer.toArray
+    } finally {
+      stmt.close()
+    }
+  }
+  override def findComposition(a: Char, b: Char): Option[Char] = {
     val sql = "SELECT result FROM bushu WHERE (char1 = ? AND char2 = ?) LIMIT 1"
     val pstmt = connection.prepareStatement(sql)
 
@@ -106,7 +127,7 @@ trait SQLiteCombinatorDictionary(jdbc_prefix: String, bushu_path: String) extend
 
     try {
       // Implement: dictionary.get(a, b) orElse dictionary.get(b, a)
-      query(a, b).orElse(query(b, a))
+      query(a, b) orElse query(b, a)
     } finally {
       pstmt.close()
     }

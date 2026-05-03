@@ -2,7 +2,7 @@
 // https://scalameta.org/munit/docs/getting-started.html
 package io.github.nicheapplab.tcodeengine
 
-class InteractiveEngineTest extends InteractiveEngineFixture {
+class InteractiveEngineTest extends SQLiteInteractiveEngineFixture {
 
   test("記しゃ"){
     val ie = engine()
@@ -56,7 +56,7 @@ class InteractiveEngineTest extends InteractiveEngineFixture {
   }
   test("劇"){
     val ie = engine()
-    "jfjfibhtpd".foreach{ c=>
+    "jfjfhtibpd".foreach{ c=>
       ie.put(c)
     }
     val res = ie.commit()
@@ -87,4 +87,29 @@ class InteractiveEngineTest extends InteractiveEngineFixture {
     "fjpbjc" foreach (ie.put(_))
     assert( clue(ie.buffer.mkString) == clue("△北り") )
   }
+  test("頭-豆"){
+    val ie = engine()
+    assert( ie.combi.composite('頭', '豆') == Some('頁'))
+    "jfsc4,".foreach{ c =>
+      ie.put(c)
+    }
+    val res = ie.commit()
+    assert( clue(res) == clue("頁"))
+  }
+  test("頭&題"){
+    val ie = engine()
+    assert( ie.combi.composite('頭', '題') == Some('頁'))
+    "jfscjy".foreach{ c =>
+      ie.put(c)
+    }
+    val res = ie.commit()
+    assert( clue(res) == clue("頁"))
+  }
+  test("項 from 工 + 頭&題"){
+    val ie = engine()
+    "jfjfscjyme".foreach(ie.put(_))
+    val res = ie.commit()
+    assert( clue(res) == clue ("項"))
+  }
+
 }
