@@ -49,4 +49,21 @@ class CombinatorTest extends BatchEngineFixture {
     val ans = be.convert("jfjfjdnr")
     assertEquals(ans, clue("丸") )
   }
+  test("項 from 工 + 頭&題"){
+    val be = engine()
+    val ans = be.convert("jfjfscjyme")
+    assert( clue(ans) == clue ("項"))
+  }
+  test("項 from 頭+工"){
+    val be = engine()
+    val ans = be.convert("jfscme")
+    assert( clue(ans) == clue ("項"))
+  }
+  test("項 from 工+頭"){
+    val be = engine()
+    val ans = be.convert("jfmesc")
+    assert( clue(ans) == clue ("項"))
+  }
+
+
 }

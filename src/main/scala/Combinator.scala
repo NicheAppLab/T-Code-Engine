@@ -15,6 +15,12 @@ trait Combinator (val strokes: Strokes) { this: CombinatorDictionary =>
       val parts_a = findParts(a).flatMap( pair => Seq(pair._1, pair._2) ).toSet
       val parts_b = findParts(b).flatMap( pair => Seq(pair._1, pair._2) ).toSet
       (parts_a intersect parts_b).headOption
+    } orElse {
+      // parts with full
+      // e.g. 頭 + 工 or 工 + 頭
+      val from_parts_of_a = findParts(a).flatMap(pair => composite(pair._1, b) orElse composite(pair._2, b))
+      val from_parts_of_b = findParts(b).flatMap(pair => composite(a, pair._1) orElse composite(a, pair._2))
+      (from_parts_of_a ++ from_parts_of_b).headOption
     }
   }
 
