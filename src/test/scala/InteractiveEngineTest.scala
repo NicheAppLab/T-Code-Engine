@@ -111,5 +111,11 @@ class InteractiveEngineTest extends SQLiteInteractiveEngineFixture {
     val res = ie.commit()
     assert( clue(res) == clue ("項"))
   }
-
+  test("項 from 頭+工"){
+    val ie = engine()
+    "jfscme".foreach(ie.put(_))
+    val res = ie.commit()
+    assert( clue(res) == clue ("項"))
+    // note: since 工(kanji) will be エ(kata), this won't work in reversed order
+  }
 }
