@@ -96,9 +96,7 @@ abstract class InteractiveEngineTestBase[T <: InteractiveEngine] extends munit.F
   test("北陸"){
     val ie = engine()
     "fjpbjcjt" foreach (ie.put(_))
-    println(s"input: ${ie.buffer.mkString}")
     ie.convert()
-    println(s"candidates:${ie.candidates.mkString}")
     ie.selectCandidate(0)
     val res = ie.commit()
     assert( clue(res) == clue("北陸") )
