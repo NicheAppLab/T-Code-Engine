@@ -1,15 +1,12 @@
-val scala3Version = "3.8.2"
 
 lazy val root = project
   .in(file("."))
   .settings(
     name := "tcodeengine",
 
-    version := "0.7.2",
+    version := "0.7.3",
 
     organization := "io.github.nicheapplab",
-
-    scalaVersion := scala3Version,
 
     publishMavenStyle := true,
 
@@ -19,6 +16,8 @@ lazy val root = project
 
     libraryDependencies += "org.xerial" % "sqlite-jdbc" % "3.53.0.0"
   )
+ThisBuild / crossScalaVersions := Seq("3.3.6", "3.8.2")
+ThisBuild / scalaVersion := "3.8.2"
 
 ThisBuild / publishTo := {
   val centralSnapshots = "https://central.sonatype.com/repository/maven-snapshots/"
