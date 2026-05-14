@@ -4,9 +4,11 @@ lazy val root = project
   .settings(
     name := "tcodeengine",
 
-    version := "0.7.3",
+    version := "0.7.4",
 
     organization := "io.github.nicheapplab",
+
+    crossVersion := CrossVersion.full,
 
     publishMavenStyle := true,
 
@@ -14,7 +16,8 @@ lazy val root = project
 
     libraryDependencies += "com.lihaoyi" %% "upickle" % "4.4.3",
 
-    libraryDependencies += "org.xerial" % "sqlite-jdbc" % "3.53.0.0"
+    libraryDependencies += "org.xerial" % "sqlite-jdbc" % "3.53.0.0",
+
   )
 ThisBuild / crossScalaVersions := Seq("3.3.6", "3.8.2")
 ThisBuild / scalaVersion := "3.8.2"
